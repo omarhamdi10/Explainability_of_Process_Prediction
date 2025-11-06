@@ -63,6 +63,29 @@ missing_after = df[imputation_cols].isnull().sum()
 print(missing_after)
 
 
+#Creating a file to save the filtered logs in
+output_dir = "split_logs"
+os.makedirs(output_dir, exist_ok=True) # Ensure the output folder exists
+
+# Filter and save 'A_' (Application) events
+df_A = df[df['Activity'].str.startswith('A_')].copy()
+path_A = os.path.join(output_dir, "BPI_2017_Log_A_Application.csv")
+df_A.to_csv(path_A, index=False)
+
+
+# Filter and save 'W_' (Workflow) events
+df_W = df[df['Activity'].str.startswith('W_')].copy()
+path_W = os.path.join(output_dir, "BPI_2017_Log_W_Workflow.csv")
+df_W.to_csv(path_W, index=False)
+
+
+# Filter and save 'O_' (Offer) events
+df_O = df[df['Activity'].str.startswith('O_')].copy()
+path_O = os.path.join(output_dir, "BPI_2017_Log_O_Offer.csv")
+df_O.to_csv(path_O, index=False)
+
+
+
 #printing the data
 print(df.shape) 
 print(df.head())
