@@ -84,6 +84,24 @@ missing_after = df[imputation_cols].isnull().sum()
 print(missing_after)
 
 
+# --- Check for Duplicates ---
+initial_rows = len(df)
+duplicate_rows = df.duplicated().sum()
+
+print(f"\n Looking for duplicates]")
+print(f"Total rows before checking: {initial_rows}")
+print(f"Total exact duplicate rows found: {duplicate_rows}")
+
+if duplicate_rows > 0:
+    df.drop_duplicates(inplace=True) 
+    
+    final_rows = len(df)
+    print(f"Removed {duplicate_rows} duplicate rows.")
+    print(f"Total rows after removal: {final_rows}")
+else:
+    print("No exact duplicate rows found.")
+
+
 # Saving the data in a CSV file 
 output_csv_path = "BPIChallenge2017.csv"
 df.to_csv(output_csv_path, index=False)
