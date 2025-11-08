@@ -22,16 +22,37 @@ df.rename(columns={
 }, inplace=True)
 
 
-# Saving the data in a CSV file 
-output_csv_path = "BPIChallenge2017.csv"
-df.to_csv(output_csv_path, index=False)
-
-
 
 #sort by CseID and then sort it by timestamp
 df.sort_values(by=['CaseID', 'Timestamp'], inplace=True)
 print("DataFrame sorted by CaseID and Timestamp.")
 
+
+
+#checking the number of cases where the milliseconds may affect the data
+df['Timestamp_Sec'] = df['Timestamp'].dt.floor('S')
+df['Prev_CaseID'] = df['CaseID'].shift(1)
+df['Prev_Timestamp_Sec'] = df['Timestamp_Sec'].shift(1)
+
+
+same_second_mask = (df['CaseID'] == df['Prev_CaseID']) & \
+                   (df['Timestamp_Sec'] == df['Prev_Timestamp_Sec'])
+
+order_critical_mask = same_second_mask & (df['Timestamp'] != df['Timestamp'].shift(1))
+
+# 4. Count the number of unique Case IDs affected
+cases_affected_by_milliseconds = df[order_critical_mask]['CaseID'].nunique()
+
+print(f"Total Cases in Log: {df['CaseID'].nunique()}")
+print(f"Total Unique Cases where Milliseconds Determine Order: {cases_affected_by_milliseconds}")
+
+# Clean up temporary columns used for shifting
+df.drop(columns=['Timestamp_Sec', 'Prev_CaseID', 'Prev_Timestamp_Sec'], inplace=True)
+
+# Time Standrization
+df['Timestamp'] = df['Timestamp'].dt.floor('S')
+df['Timestamp'] = df['Timestamp'].dt.tz_localize(None)
+df.sort_values(by=['CaseID', 'Timestamp'], inplace=True)
 
 # Define all columns being that have missing values
 imputation_cols = [
@@ -61,6 +82,11 @@ for col in categorical_cols:
 print("\n--- Missing Value Count AFTER Imputation ---")
 missing_after = df[imputation_cols].isnull().sum()
 print(missing_after)
+
+
+# Saving the data in a CSV file 
+output_csv_path = "BPIChallenge2017.csv"
+df.to_csv(output_csv_path, index=False)
 
 
 #Creating a file to save the filtered logs in
