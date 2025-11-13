@@ -132,5 +132,3 @@ df_O.to_csv(path_O, index=False)
 
 #printing the data
 print(df.shape) 
-print(df.head())
-print(df.info())
